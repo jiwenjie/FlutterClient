@@ -1,6 +1,3 @@
-
-
-
 import 'package:fluro/fluro.dart';
 import 'package:flutter_client/page/splash_page.dart';
 import 'package:flutter_client/utils/logger.dart';
