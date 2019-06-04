@@ -219,6 +219,13 @@
             </list>
           </value>
         </entry>
+        <entry key="url_launcher">
+          <value>
+            <list>
+              <option value="F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/url_launcher-4.2.0+3/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="vector_math">
           <value>
             <list>
@@ -257,6 +264,7 @@
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/test_api-0.2.4/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/transformer_page_view-0.1.6/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/typed_data-1.1.6/lib" />
+      <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/url_launcher-4.2.0+3/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/vector_math-2.0.8/lib" />
       <root url="file://F:/Flutter/flutter/bin/cache/pkg/sky_engine/lib" />
       <root url="file://F:/Flutter/flutter/packages/flutter/lib" />
