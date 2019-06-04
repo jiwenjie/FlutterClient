@@ -2,4 +2,5 @@
 /// 防止重复手写出现拼写错误
 class Resource {
   static const pngSplash = 'images/splash.png';
+  static const splashLogo = 'images/logo.jpg';
 }

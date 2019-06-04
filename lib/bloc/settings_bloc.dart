@@ -4,7 +4,7 @@ import 'package:flutter_client/bloc/bloc_provider.dart';
 
 class SettingBloc extends BaseBloc {
   // 所有的主题色列表
-  static const themeColors = [Colors.blue, Colors.red, Colors.green, Colors.deepOrange, Colors.pink, Colors.purple];
+  static const themeColors = [Colors.red, Colors.blue, Colors.red, Colors.green, Colors.deepOrange, Colors.pink, Colors.purple];
 
   Color _color = themeColors[0];
 
