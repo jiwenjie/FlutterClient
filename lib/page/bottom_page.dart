@@ -36,7 +36,7 @@ class _NavigationKeepAliveState extends State<NavigationKeepAlive>
       body: PageView(
         controller: _controller,
         children: <Widget>[
-          FirstScreen(),
+          HomeScreen(),
           SecondScreen(),
           ThirdScreen(),
           FourScreen(),

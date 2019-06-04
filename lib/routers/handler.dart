@@ -1,12 +1,15 @@
 import 'package:fluro/fluro.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_client/page/bottom_page.dart';
 import 'package:flutter_client/page/splash_page.dart';
 import 'package:flutter_client/page/tabview_bottom.dart';
 import 'package:flutter_client/utils/logger.dart';
+import 'package:flutter_client/widgets/404.dart';
 
-Handler notFoundHandler = Handler(handlerFunc: (_, params) {
-  Logger('RouterHandler:').log('Not Found Router');
-});
+var widgetNotFoundHandler = new Handler(
+    handlerFunc: (BuildContext context, Map<String, List<String>> params) {
+      return WidgetNotFound();
+    });
 
 Handler rootHandler = Handler(handlerFunc: (_, params) => SplashPage());
 

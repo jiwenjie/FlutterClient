@@ -10,7 +10,7 @@ class Routers {
   static const test_index_page = '/test_page';
 
   static configureRouters(Router router) {
-    router.notFoundHandler = notFoundHandler;
+    router.notFoundHandler = widgetNotFoundHandler;
 
     router.define(root, handler: rootHandler);
 
