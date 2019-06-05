@@ -1,38 +1,24 @@
 class StoryModel {
-  final String title;
-  final String image;
-  final int id;
-  final String url;
+  String title;
+  String image;
+  int id;
+  String url;
 
-  StoryModel(this.id, this.title, {this.image, this.url});
+  static StoryModel fromMap(Map<String, dynamic> json){
+    StoryModel story = new StoryModel();
+    story.id = json['id'];
+    story.title = json['title'];
+    story.url = json['url'];
+    story.image = json['imagePath'];
+    return story;
+  }
 
-  StoryModel.fromJson(Map<String, dynamic> json):
-      this(json['id'], json['title'],
-      image: json['image'] != null ? json['image'] : (json['images'] != null ? json['images'][0] : null),
-      url: json['url'] != null ? json['url'] : (json['url'] != null ? json['url'][0] : null),);
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'image': image,
-      'url': url
-    };
+  // 获取网络请求，从请求中拿出列表数据
+  static List<StoryModel> fromMapList(dynamic mapList) {
+    List<StoryModel> list = new List(mapList.length);
+    for (int i = 0; i < mapList.length; i++) {
+      list[i] = fromMap(mapList[i]);
+    }
+    return list;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

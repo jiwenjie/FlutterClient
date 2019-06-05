@@ -24,8 +24,7 @@ class SplashPage extends StatelessWidget {
     // 5s 倒计时，展示首页，倒计时结束后进入应用主页
     Observable.timer(0, Duration(milliseconds: 3000)).listen((_) {
       print('进入倒计时');
-      Application.router.navigateTo(context, Routers.test_index_page,
-          replace: true); // PageView 实现底部菜单
+      Application.router.navigateTo(context, Routers.index_page, replace: true); // PageView 实现底部菜单
 //      Application.router.navigateTo(context, Routers.index_page, replace: true);      // BottomNavigationBar 实现底部菜单界面
     });
 

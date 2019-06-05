@@ -1,9 +1,10 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_client/bloc/banner_bloc.dart';
+import 'package:flutter_client/bloc/bloc_provider.dart';
 import 'package:flutter_client/page/bottom_page.dart';
 import 'package:flutter_client/page/splash_page.dart';
 import 'package:flutter_client/page/tabview_bottom.dart';
-import 'package:flutter_client/utils/logger.dart';
 import 'package:flutter_client/widgets/404.dart';
 
 var widgetNotFoundHandler = new Handler(
@@ -13,8 +14,9 @@ var widgetNotFoundHandler = new Handler(
 
 Handler rootHandler = Handler(handlerFunc: (_, params) => SplashPage());
 
-Handler indexHandler = Handler(handlerFunc: (_, params) => NavigationKeepAlive());
+Handler homeHandler = Handler(handlerFunc: (_, params) => NavigationKeepAlive());
 
-
-/// 测试跳转界面
-Handler testIndex = Handler(handlerFunc: (_, params) => AppPage());
+/// 跳转 Main 界面
+Handler indexHandler = Handler(handlerFunc: (_, params){
+  return BlocProvider(child: AppPage(), bloc: BannerBloc());
+});
