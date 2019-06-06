@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_client/bloc/banner_bloc.dart';
 import 'package:flutter_client/bloc/bloc_provider.dart';
+import 'package:flutter_client/bloc/home_list_bloc.dart';
 import 'package:flutter_client/components/pagination.dart';
 import 'package:flutter_client/model/story.dart';
+import 'package:flutter_client/model/wanandroid.dart';
 
 // 首页
 class HomeScreen extends StatefulWidget {
@@ -15,114 +17,78 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin {
   @override
-  // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
-
-  final List<String> letters = [
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'O',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z',
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'O',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z',
-  ];
 
   @override
   Widget build(BuildContext context) {
     var _bannerBloc = BlocProvider.of<BannerBloc>(context);
-    _bannerBloc.requestBannerList().then((urlList) => _bannerBloc.updateBanner(urlList));
+    var _beanListBloc = BlocProvider.of<HomeListBloc>(context);
+    _bannerBloc
+        .requestBannerList()
+        .then((urlList) => _bannerBloc.updateBanner(urlList));
+    _beanListBloc
+        .requestIndexList()
+        .then((model) => _beanListBloc.updatePage(model));
 
     return Container(
-      child: CustomScrollView(
-        slivers: <Widget>[
-          // 这里需要传入 `Sliver` 部件
-          SliverToBoxAdapter(
-              child: StreamBuilder(
-                  initialData: _bannerBloc.storyList,
-                  stream: _bannerBloc.storyStream,
-                  builder: (_, AsyncSnapshot<List<StoryModel>> urlSnapshot) =>
-                      !urlSnapshot.hasData || urlSnapshot.data.isEmpty
+        child: StreamBuilder(
+            initialData: _bannerBloc.storyList,
+            stream: _bannerBloc.storyStream,
+            builder: (_, AsyncSnapshot<List<StoryModel>> urlSnapshot) =>
+                StreamBuilder(
+                  // todo the childCount can't set (snop.data.bean.length). I don't know the reason
+                  initialData: _beanListBloc.wanBaseModel,
+                  stream: _beanListBloc.wanBaseModelStream,
+                  builder: (_, AsyncSnapshot<WanBaseModel> snop) =>
+                      !urlSnapshot.hasData ||
+                              urlSnapshot.data.isEmpty ||
+                              !snop.hasData
                           ? CupertinoActivityIndicator(radius: 12.0)
-                          : Container(
-                              color: Colors.black12,
-                              child: Column(
-                                  children: <Widget>[
-                                    Divider(height: 2.0, color: Colors.black54),
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      children: <Widget>[
-                                        Pagination(urlSnapshot.data), // 传入 url 链接
-                                        Text('我是一些别的东西..例如广告', textScaleFactor: 1.5, style: TextStyle(color: Colors.red))
-                                      ],
-                                    ),
-                                    Divider(height: 2.0, color: Colors.black54),
-                                  ],
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween),
-                              alignment: Alignment.center))),
-          // SliverFixedExtentList 实现同 List.custom 实现类似
-          SliverFixedExtentList(
-              delegate: SliverChildBuilderDelegate(
-                  (_, index) => InkWell(
-                        child: Container(
-                          child: Text(letters[index] * 10,
-                              style: TextStyle(letterSpacing: 2.0),
-                              textScaleFactor: 1.5),
-                          alignment: Alignment.center,
-                        ),
-                        onTap: () {},
-                      ),
-                  childCount: letters.length),
-              itemExtent: 60.0)
-        ],
-      ),
-    );
+                          : CustomScrollView(
+                              slivers: <Widget>[
+                                // 这里需要传入 `Sliver` 部件
+                                SliverToBoxAdapter(
+                                    child: Container(
+                                        color: Colors.black12,
+                                        child: Column(
+                                            children: <Widget>[
+                                              Divider(
+                                                  height: 2.0,
+                                                  color: Colors.black54),
+                                              Stack(
+                                                alignment: Alignment.center,
+                                                children: <Widget>[
+                                                  Pagination(urlSnapshot
+                                                      .data), // 传入 url 链接
+                                                ],
+                                              ),
+                                              Divider(
+                                                  height: 2.0,
+                                                  color: Colors.black54),
+                                            ],
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween),
+                                        alignment: Alignment.center)),
+                                // SliverFixedExtentList 实现同 List.custom 实现类似
+                                SliverFixedExtentList(
+                                    delegate: SliverChildBuilderDelegate(
+                                        (_, index) => InkWell(
+                                              child: Container(
+                                                child: Text(
+                                                    snop.data.bean.datas[index]
+                                                        .title,
+                                                    style: TextStyle(
+                                                        letterSpacing: 2.0),
+                                                    textScaleFactor: 1.5),
+                                                alignment: Alignment.center,
+                                              ),
+                                              onTap: () {},
+                                            ),
+                                        childCount: snop.data.bean.datas.length),
+                                    itemExtent: 60.0),
+                              ],
+                            ),
+                )));
   }
 }
 
