@@ -15,7 +15,7 @@ var widgetNotFoundHandler = new Handler(
 
 Handler rootHandler = Handler(handlerFunc: (_, params) => SplashPage());
 
-Handler homeHandler = Handler(handlerFunc: (_, params) => NavigationKeepAlive());
+Handler homeHandler = Handler(handlerFunc: (_, params) => App());
 
 /// 跳转 Main 界面
 Handler indexHandler = Handler(handlerFunc: (_, params){
