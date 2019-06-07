@@ -11,23 +11,28 @@ class HomeListBloc extends BaseBloc {
 
   final _logger = Logger('HomeListBloc');
 
-  WanBaseModel _wanBaseModel;
+  List<DatasBaen> _wanDataList = [];
 
-  WanBaseModel get wanBaseModel => _wanBaseModel;
+  List<DatasBaen> get wanDataList => _wanDataList;
 
-  BehaviorSubject<WanBaseModel> _Controller = BehaviorSubject();
+  BehaviorSubject<List<DatasBaen>> _Controller = BehaviorSubject();
 
   /// stream，用于 StreamBuilder 的 stream 参数
-  Observable<WanBaseModel> get wanBaseModelStream => Observable(_Controller.stream);
+  Observable<List<DatasBaen>> get wanBaseModelStream => Observable(_Controller.stream);
 
-  // 请求头部 banner 成功后更新数据
-  updatePage(WanBaseModel bean) {
-    this._wanBaseModel = bean;
-    _Controller.add(_wanBaseModel);
+  // 获取列表数据后更新界面
+  updateListPage(int page, List<DatasBaen> beanList) {
+    if (page == 1) {
+      this._wanDataList.clear();
+    }
+    this._wanDataList.addAll(beanList);
+    _Controller.add(_wanDataList);
   }
 
-  Future<WanBaseModel> requestIndexList() async {
-    var resp = await Application.http.getRequest(NetApi.INDEX_LIST_URL, error: (msg) => _logger.log(msg, 'banner'));
+  // add page params
+  Future<WanBaseModel> requestIndexList(int page) async {
+//    var resp = await Application.http.getRequest('/article/list/' + String.fromCharCode(page) + '/json', error: (msg) => _logger.log(msg, 'IndexList'));
+    var resp = await Application.http.getRequest(NetApi.INDEX_LIST_URL, error: (msg) => _logger.log(msg, 'IndexList'));
     return WanBaseModel.fromMap(resp.data);
   }
 

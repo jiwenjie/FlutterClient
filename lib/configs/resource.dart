@@ -3,4 +3,7 @@
 class Resource {
   static const pngSplash = 'assets/images/splash.png';
   static const splashLogo = 'assets/images/logo.jpg';
+
+  static const errImgPath = 'assets/images/ic_error.png';
+  static const emptyImgPath = 'assets/images/ic_empty.png';
 }

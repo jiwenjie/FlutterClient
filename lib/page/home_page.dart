@@ -19,6 +19,44 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   bool get wantKeepAlive => true;
 
+  int page = 1;
+  bool showToTopBtn = false; //是否显示“返回到顶部”按钮
+
+  //listview控制器
+  ScrollController _scrollController = ScrollController();
+
+  //获取文章列表数据
+  Future<Null> _refresh() async {}
+
+  // Item 的点击事件
+  void onItemClicke(DatasBaen bean) {
+    print('点击了' + bean.title);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      //滑到了底部，加载更多
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+//        _getMore();
+          print('滑到了底部，加载更多');
+      }
+
+      //当前位置是否超过屏幕高度
+      if (_scrollController.offset < 200 && showToTopBtn) {
+        setState(() {
+//          showToTopBtn = false;
+        });
+      } else if (_scrollController.offset >= 200 && showToTopBtn == false) {
+        setState(() {
+//          showToTopBtn = true;
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var _bannerBloc = BlocProvider.of<BannerBloc>(context);
@@ -27,171 +65,114 @@ class _HomeScreenState extends State<HomeScreen>
         .requestBannerList()
         .then((urlList) => _bannerBloc.updateBanner(urlList));
     _beanListBloc
-        .requestIndexList()
-        .then((model) => _beanListBloc.updatePage(model));
+        .requestIndexList(page)
+        .then((model) => _beanListBloc.updateListPage(page, model.bean.datas));
 
-    return Container(
-        child: StreamBuilder(
-            initialData: _bannerBloc.storyList,
-            stream: _bannerBloc.storyStream,
-            builder: (_, AsyncSnapshot<List<StoryModel>> urlSnapshot) =>
-                StreamBuilder(
-                  // todo the childCount can't set (snop.data.bean.length). I don't know the reason
-                  initialData: _beanListBloc.wanBaseModel,
-                  stream: _beanListBloc.wanBaseModelStream,
-                  builder: (_, AsyncSnapshot<WanBaseModel> snop) =>
-                      !urlSnapshot.hasData ||
-                              urlSnapshot.data.isEmpty ||
-                              !snop.hasData
-                          ? CupertinoActivityIndicator(radius: 12.0)
-                          : CustomScrollView(
-                              slivers: <Widget>[
-                                // 这里需要传入 `Sliver` 部件
-                                SliverToBoxAdapter(
-                                    child: Container(
-                                        color: Colors.black12,
-                                        child: Column(
-                                            children: <Widget>[
-                                              Divider(
-                                                  height: 2.0,
-                                                  color: Colors.black54),
-                                              Stack(
-                                                alignment: Alignment.center,
-                                                children: <Widget>[
-                                                  Pagination(urlSnapshot
-                                                      .data), // 传入 url 链接
-                                                ],
-                                              ),
-                                              Divider(
-                                                  height: 2.0,
-                                                  color: Colors.black54),
-                                            ],
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween),
-                                        alignment: Alignment.center)),
-                                // SliverFixedExtentList 实现同 List.custom 实现类似
-                                SliverFixedExtentList(
+    return RefreshIndicator(
+      displacement: 15,
+      onRefresh: _refresh,
+      child: Scaffold(
+          body: StreamBuilder(
+              initialData: _bannerBloc.storyList,
+              stream: _bannerBloc.storyStream,
+              builder: (_, AsyncSnapshot<List<StoryModel>> urlSnapshot) =>
+                  StreamBuilder(
+                    initialData: _beanListBloc.wanDataList,
+                    stream: _beanListBloc.wanBaseModelStream,
+                    builder: (_, AsyncSnapshot<List<DatasBaen>> snop) =>
+                        !urlSnapshot.hasData ||
+                                urlSnapshot.data.isEmpty ||
+                                !snop.hasData
+                            ? CupertinoActivityIndicator(radius: 12.0)
+                            : CustomScrollView(
+                                controller: _scrollController,
+                                slivers: <Widget>[
+                                  // 这里需要传入 `Sliver` 部件
+                                  SliverToBoxAdapter(
+                                      child: Container(
+                                          color: Colors.black12,
+                                          child: Column(
+                                              children: <Widget>[
+                                                Divider(height: 2.0, color: Colors.black54),
+                                                Stack(
+                                                  alignment: Alignment.center,
+                                                  children: <Widget>[
+                                                    Pagination(urlSnapshot.data), // 传入 url 链接
+                                                  ],
+                                                ),
+                                                Divider(height: 2.0, color: Colors.black54),
+                                              ],
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween),
+                                          alignment: Alignment.center)),
+                                  // SliverList 的实现和 SliverFixedExtentList 以及 List.custom 实现类似，不过它不用指定高度
+                                  SliverList(
                                     delegate: SliverChildBuilderDelegate(
                                         (_, index) => InkWell(
                                               child: Container(
-                                                child: Text(
-                                                    snop.data.bean.datas[index]
-                                                        .title,
-                                                    style: TextStyle(
-                                                        letterSpacing: 2.0),
-                                                    textScaleFactor: 1.5),
+                                                color: Colors.white,
                                                 alignment: Alignment.center,
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    Container(
+                                                      color: Colors.white,
+                                                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Text(snop.data[index].author, style: TextStyle(fontSize: 12), textAlign: TextAlign.left,),
+                                                          Expanded(
+                                                            child: Text(snop.data[index].niceDate, style: TextStyle(fontSize: 12), textAlign: TextAlign.right,),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      color: Colors.white,
+                                                      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Expanded(
+                                                            child: Text(snop.data[index].title, maxLines: 2,
+                                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,
+                                                                color: const Color(0xFF3D4E5F),
+                                                              ),
+                                                              textAlign: TextAlign.left,
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    Container(
+                                                      color: Colors.white,
+                                                      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+                                                      child: Row(
+                                                        children: <Widget>[
+                                                          Expanded(
+                                                            child: Text(snop.data[index].superChapterName, style: TextStyle(fontSize: 12), textAlign: TextAlign.left,),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                              onTap: () {},
+                                              onTap: () {
+                                                onItemClicke(snop.data[index]);
+                                              },
                                             ),
-                                        childCount: snop.data.bean.datas.length),
-                                    itemExtent: 60.0),
-                              ],
-                            ),
-                )));
+                                        childCount: snop.data.length),
+                                  ),
+                                ],
+                              ),
+                  )),
+        floatingActionButton: !showToTopBtn
+            ? null : FloatingActionButton(
+            child: Icon(Icons.arrow_upward),
+            onPressed: () {
+              //返回到顶部时执行动画
+              _scrollController.animateTo(.0,
+                  duration: Duration(milliseconds: 200), curve: Curves.ease);
+            }),
+      ),
+    );
   }
 }
-
-// todo 引入库实现了轮播图 banner
-//class _HomeScreenState extends State<HomeScreen>
-//    with AutomaticKeepAliveClientMixin {
-//  @override
-//  // TODO: implement wantKeepAlive
-//  bool get wantKeepAlive => true;
-//
-//  // 声明一个list，存放image Widget
-//  List<Widget> imageList = List();
-//
-//  @override
-//  void initState() {
-//    // TODO: implement initState
-//    imageList
-//      ..add(Image.network(
-//        'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2726034926,4129010873&fm=26&gp=0.jpg',
-//        fit: BoxFit.fill,
-//      ))
-//      ..add(Image.network(
-//        'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3485348007,2192172119&fm=26&gp=0.jpg',
-//        fit: BoxFit.fill,
-//      ))
-//      ..add(Image.network(
-//        'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2594792439,969125047&fm=26&gp=0.jpg',
-//        fit: BoxFit.fill,
-//      ))
-//      ..add(Image.network(
-//        'https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=190488632,3936347730&fm=26&gp=0.jpg',
-//        fit: BoxFit.fill,
-//      ));
-//    super.initState();
-//  }
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-////        backgroundColor: Colors.black12,
-////        appBar: AppBar(
-////          title: Text('轮播图'),
-////        ),
-//          //// 引入的框架实现了轮播图
-////        body: ListView(
-////          // 这里使用listView是因为本地写了几组不同样式的展示，太懒了，所以这里就没有改
-////          children: <Widget>[firstSwiperView()],
-////        ));
-//        body: Container(
-//         child: Pagination(),
-//        )
-//    );
-//  }
-//
-//
-//  /// 暂时先使用这个轮播图。有更好的替换
-//  Widget firstSwiperView() {
-//    return Container(
-//      padding: const EdgeInsets.fromLTRB(0, 50, 0, 5),
-//      width: MediaQuery.of(context).size.width,
-//      height: 300,
-//      // first Style
-//      child: Swiper(
-//        itemCount: 4,
-//        itemBuilder: _swiperBuilder,
-////        itemBuilder: (BuildContext context, int index) {
-////          return Container(
-////            // 用Container实现图片圆角的效果
-////            decoration: BoxDecoration(
-////              image: DecorationImage(
-////                image: imageList[index], // 图片数组
-////                fit: BoxFit.cover,
-////              ),
-////              borderRadius: BorderRadius.all(
-////                Radius.circular(10.0),
-////              ),
-////            ),
-////          );
-////        },
-//        pagination: SwiperPagination(
-//            alignment: Alignment.bottomRight,
-//            margin: const EdgeInsets.fromLTRB(0, 0, 20, 10),
-//            builder: DotSwiperPaginationBuilder(
-//                color: Colors.black54, activeColor: Colors.white)),
-////        pagination:  SwiperPagination(
-////            builder: DotSwiperPaginationBuilder(
-////                color: Colors.white70,              // 其他点的颜色
-////                activeColor: Colors.redAccent,      // 当前点的颜色
-////                space: 2,                           // 点与点之间的距离
-////                activeSize: 20                      // 当前点的大小
-////            )
-////        ),
-//        controller: SwiperController(),
-//        scrollDirection: Axis.horizontal,
-//        autoplay: true,
-//        onTap: (index) => print('点击了第$index'),
-//      ),
-//
-//      // 第二种样式
-//    );
-//  }
-//
-//  Widget _swiperBuilder(BuildContext context, int index) {
-//    return (imageList[index]);
-//  }
-//}
