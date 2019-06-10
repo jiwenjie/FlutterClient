@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool get wantKeepAlive => true;
 
   int page = 1;
-  bool showToTopBtn = true; //是否显示“返回到顶部”按钮
+  bool showToTopBtn = false; //是否显示“返回到顶部”按钮
 
   //listview控制器
   ScrollController _scrollController = ScrollController();
@@ -28,7 +28,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   //获取文章列表数据
   Future<Null> _refresh() async {
-
+    page = 1;
+    _beanListBloc
+        .requestIndexList(page)
+        .then((model) => _beanListBloc.updateListPage(page, model.bean.datas));
   }
 
   // 上拉加载更多方法
@@ -55,14 +58,14 @@ class _HomeScreenState extends State<HomeScreen>
         _getMore();
       }
 
-      //当前位置是否超过屏幕高度
+      // 当下滑超过一定距离后显示 fab，当在开头部分时隐藏
       if (_scrollController.offset < 200 && showToTopBtn) {
         setState(() {
-//          showToTopBtn = false;
+          showToTopBtn = false;
         });
       } else if (_scrollController.offset >= 200 && showToTopBtn == false) {
         setState(() {
-//          showToTopBtn = true;
+          showToTopBtn = true;
         });
       }
     });
