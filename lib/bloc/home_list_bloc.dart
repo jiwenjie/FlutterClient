@@ -31,8 +31,8 @@ class HomeListBloc extends BaseBloc {
 
   // add page params
   Future<WanBaseModel> requestIndexList(int page) async {
-//    var resp = await Application.http.getRequest('/article/list/' + String.fromCharCode(page) + '/json', error: (msg) => _logger.log(msg, 'IndexList'));
-    var resp = await Application.http.getRequest(NetApi.INDEX_LIST_URL, error: (msg) => _logger.log(msg, 'IndexList'));
+    var resp = await Application.http.getRequest('/article/list/' + page.toString() + '/json', error: (msg) => _logger.log(msg, 'IndexList'));
+//    var resp = await Application.http.getRequest(NetApi.INDEX_LIST_URL, error: (msg) => _logger.log(msg, 'IndexList'));
     return WanBaseModel.fromMap(resp.data);
   }
 

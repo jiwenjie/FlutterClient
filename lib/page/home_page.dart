@@ -20,13 +20,24 @@ class _HomeScreenState extends State<HomeScreen>
   bool get wantKeepAlive => true;
 
   int page = 1;
-  bool showToTopBtn = false; //是否显示“返回到顶部”按钮
+  bool showToTopBtn = true; //是否显示“返回到顶部”按钮
 
   //listview控制器
   ScrollController _scrollController = ScrollController();
+  HomeListBloc _beanListBloc;
 
   //获取文章列表数据
-  Future<Null> _refresh() async {}
+  Future<Null> _refresh() async {
+
+  }
+
+  // 上拉加载更多方法
+  void _getMore() {
+    page++;
+    _beanListBloc
+        .requestIndexList(page)
+        .then((model) => _beanListBloc.updateListPage(page, model.bean.datas));
+  }
 
   // Item 的点击事件
   void onItemClicke(DatasBaen bean) {
@@ -40,8 +51,8 @@ class _HomeScreenState extends State<HomeScreen>
       //滑到了底部，加载更多
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
-//        _getMore();
-          print('滑到了底部，加载更多');
+        print('滑到了底部，加载更多');
+        _getMore();
       }
 
       //当前位置是否超过屏幕高度
@@ -60,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     var _bannerBloc = BlocProvider.of<BannerBloc>(context);
-    var _beanListBloc = BlocProvider.of<HomeListBloc>(context);
+    _beanListBloc = BlocProvider.of<HomeListBloc>(context);
     _bannerBloc
         .requestBannerList()
         .then((urlList) => _bannerBloc.updateBanner(urlList));
@@ -72,98 +83,96 @@ class _HomeScreenState extends State<HomeScreen>
       displacement: 15,
       onRefresh: _refresh,
       child: Scaffold(
-          body: StreamBuilder(
-              initialData: _bannerBloc.storyList,
-              stream: _bannerBloc.storyStream,
-              builder: (_, AsyncSnapshot<List<StoryModel>> urlSnapshot) =>
-                  StreamBuilder(
-                    initialData: _beanListBloc.wanDataList,
-                    stream: _beanListBloc.wanBaseModelStream,
-                    builder: (_, AsyncSnapshot<List<DatasBaen>> snop) =>
-                        !urlSnapshot.hasData ||
-                                urlSnapshot.data.isEmpty ||
-                                !snop.hasData
-                            ? CupertinoActivityIndicator(radius: 12.0)
-                            : CustomScrollView(
-                                controller: _scrollController,
-                                slivers: <Widget>[
-                                  // 这里需要传入 `Sliver` 部件
-                                  SliverToBoxAdapter(
-                                      child: Container(
-                                          color: Colors.black12,
-                                          child: Column(
-                                              children: <Widget>[
-                                                Divider(height: 2.0, color: Colors.black54),
-                                                Stack(
-                                                  alignment: Alignment.center,
-                                                  children: <Widget>[
-                                                    Pagination(urlSnapshot.data), // 传入 url 链接
-                                                  ],
-                                                ),
-                                                Divider(height: 2.0, color: Colors.black54),
-                                              ],
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween),
-                                          alignment: Alignment.center)),
-                                  // SliverList 的实现和 SliverFixedExtentList 以及 List.custom 实现类似，不过它不用指定高度
-                                  SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                        (_, index) => InkWell(
-                                              child: Container(
-                                                color: Colors.white,
-                                                alignment: Alignment.center,
-                                                child: Column(
-                                                  children: <Widget>[
-                                                    Container(
-                                                      color: Colors.white,
-                                                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          Text(snop.data[index].author, style: TextStyle(fontSize: 12), textAlign: TextAlign.left,),
-                                                          Expanded(
-                                                            child: Text(snop.data[index].niceDate, style: TextStyle(fontSize: 12), textAlign: TextAlign.right,),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      color: Colors.white,
-                                                      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          Expanded(
-                                                            child: Text(snop.data[index].title, maxLines: 2,
-                                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,
-                                                                color: const Color(0xFF3D4E5F),
-                                                              ),
-                                                              textAlign: TextAlign.left,
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      color: Colors.white,
-                                                      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
-                                                      child: Row(
-                                                        children: <Widget>[
-                                                          Expanded(
-                                                            child: Text(snop.data[index].superChapterName, style: TextStyle(fontSize: 12), textAlign: TextAlign.left,),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+        body: StreamBuilder(
+            initialData: _bannerBloc.storyList,
+            stream: _bannerBloc.storyStream,
+            builder: (_, AsyncSnapshot<List<StoryModel>> urlSnapshot) =>
+                StreamBuilder(
+                  initialData: _beanListBloc.wanDataList,
+                  stream: _beanListBloc.wanBaseModelStream,
+                  builder: (_, AsyncSnapshot<List<DatasBaen>> snop) =>
+                  !urlSnapshot.hasData || urlSnapshot.data.isEmpty || !snop.hasData
+                      ? Center(child: CupertinoActivityIndicator(radius: 12.0),)
+                      : CustomScrollView(
+                    controller: _scrollController,
+                    slivers: <Widget>[
+                      // 这里需要传入 `Sliver` 部件
+                      SliverToBoxAdapter(
+                          child: Container(
+                              color: Colors.black12,
+                              child: Column(
+                                  children: <Widget>[
+                                    Divider(height: 2.0, color: Colors.black54),
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: <Widget>[
+                                        Pagination(urlSnapshot.data), // 传入 url 链接
+                                      ],
+                                    ),
+                                    Divider(height: 2.0, color: Colors.black54),
+                                  ],
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween),
+                              alignment: Alignment.center)),
+                      // SliverList 的实现和 SliverFixedExtentList 以及 List.custom 实现类似，不过它不用指定高度
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                                (_, index) => InkWell(
+                              child: Container(
+                                color: Colors.white,
+                                alignment: Alignment.center,
+                                child: Column(
+                                  children: <Widget>[
+                                    Container(
+                                      color: Colors.white,
+                                      padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Text(snop.data[index].author, style: TextStyle(fontSize: 12), textAlign: TextAlign.left,),
+                                          Expanded(
+                                            child: Text(snop.data[index].niceDate, style: TextStyle(fontSize: 12), textAlign: TextAlign.right,),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      color: Colors.white,
+                                      padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Expanded(
+                                            child: Text(snop.data[index].title, maxLines: 2,
+                                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,
+                                                color: const Color(0xFF3D4E5F),
                                               ),
-                                              onTap: () {
-                                                onItemClicke(snop.data[index]);
-                                              },
+                                              textAlign: TextAlign.left,
                                             ),
-                                        childCount: snop.data.length),
-                                  ),
-                                ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      color: Colors.white,
+                                      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Expanded(
+                                            child: Text(snop.data[index].superChapterName, style: TextStyle(fontSize: 12), textAlign: TextAlign.left,),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                  )),
+                              onTap: () {
+                                onItemClicke(snop.data[index]);
+                              },
+                            ),
+                            childCount: snop.data.length),
+                      ),
+                    ],
+                  ),
+                )),
         floatingActionButton: !showToTopBtn
             ? null : FloatingActionButton(
             child: Icon(Icons.arrow_upward),
